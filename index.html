@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Website</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Inventory Management Web System</h1>
+    </header>
+
+    <section id="add-item">
+        <h2>Add New Item</h2>
+        <form id="inventory-form">
+            <input type="text" id="item-name" placeholder="Item Name" required>
+            <input type="number" id="item-quantity" placeholder="Quantity" required>
+            <button type="submit">Add Item</button>
+        </form>
+    </section>
+
+    <section id="inventory-list">
+        <h2>Inventory List</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Item Name</th>
+                    <th>Quantity</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="items-table">
+                <!-- Items will appear here -->
+            </tbody>
+        </table>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 Inventory System</p>
+    </footer>
+
+   
+    <script>
+    let items = [];
+let id = 1;
+
+const form = document.getElementById('inventory-form');
+const itemNameInput = document.getElementById('item-name');
+const itemQuantityInput = document.getElementById('item-quantity');
+const itemsTable = document.getElementById('items-table');
+
+form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    addItem(itemNameInput.value, itemQuantityInput.value);
+    form.reset();
+});
+
+function addItem(name, quantity) {
+    const item = { id: id++, name, quantity };
+    items.push(item);
+    renderItems();
+}
+
+function editItem(itemId) {
+    const item = items.find(i => i.id === itemId);
+    const newName = prompt("Enter new item name:", item.name);
+    const newQuantity = prompt("Enter new quantity:", item.quantity);
+    if(newName && newQuantity) {
+        item.name = newName;
+        item.quantity = newQuantity;
+        renderItems();
+    }
+}
+
+function deleteItem(itemId) {
+    items = items.filter(i => i.id !== itemId);
+    renderItems();
+}
+
+function renderItems() {
+    itemsTable.innerHTML = '';
+    items.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${item.id}</td>
+            <td>${item.name}</td>
+            <td>${item.quantity}</td>
+            <td>
+                <button class="edit" onclick="editItem(${item.id})">Edit</button>
+                <button class="delete" onclick="deleteItem(${item.id})">Delete</button>
+            </td>
+        `;
+        itemsTable.appendChild(row);
+    });
+}
+
+
+</script>
+</body>
+</html>
