@@ -1,4 +1,4 @@
-  const addBtn = document.getElementById("addBtn");
+ const addBtn = document.getElementById("addBtn");
     const modal = document.getElementById("modal");
     const closeModal = document.getElementById("closeModal");
     const saveItem = document.getElementById("saveItem");
