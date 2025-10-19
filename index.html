@@ -1,69 +1,293 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Inventory Management System</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Floating Label Login & Register</title>
+
+  <style>
+    /* === GLOBAL STYLE === */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      background: linear-gradient(135deg, #1e3a8a, #2563eb, #60a5fa);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #333;
+    }
+
+    /* === CONTAINER === */
+    .container {
+      width: 380px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+      padding: 40px 35px;
+      text-align: center;
+      color: #fff;
+      animation: fadeIn 0.8s ease;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      margin-bottom: 25px;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+
+    /* === FLOATING LABEL INPUT === */
+    .input-group {
+      position: relative;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.85);
+      color: #333;
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      box-shadow: 0 0 8px rgba(37, 99, 235, 0.6);
+      transform: scale(1.02);
+    }
+
+    .input-group label {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      color: #666;
+      font-size: 15px;
+      pointer-events: none;
+      transition: 0.3s ease;
+    }
+
+    .input-group input:focus + label,
+    .input-group input:not(:placeholder-shown) + label {
+      top: -8px;
+      left: 10px;
+      font-size: 13px;
+      color: #1e3a8a;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 0 5px;
+      border-radius: 5px;
+    }
+
+    /* === BUTTON === */
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(90deg, #1e3a8a, #2563eb);
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: linear-gradient(90deg, #2563eb, #1e40af);
+      transform: scale(1.03);
+    }
+
+    .show-password {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #e0e7ff;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 14px;
+      margin-top: 15px;
+    }
+
+    p span {
+      color: #93c5fd;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    p span:hover {
+      text-decoration: underline;
+      color: #bfdbfe;
+    }
+
+    .msg {
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
+
 <body>
+  <div class="container">
+    <!-- LOGIN FORM -->
+    <div class="form-container" id="login-form">
+      <h2>Login</h2>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div>
-      <h2>📦 IM System</h2>
-      <nav class="nav">
-        <a href="#" class="active">Dashboard</a>
-        <a href="#">Reports</a>
-        <a href="#">Settings</a>
-      </nav>
-    </div>
-    <footer>&copy; 2025 Inventory</footer>
-  </aside>
-
-  <!-- MAIN CONTENT -->
-  <div class="main-content">
-    <header>
-      <h1>Inventory Management System</h1>
-      <button id="addBtn">+ Add Item</button>
-    </header>
-
-    <main>
-      <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="🔍 Search item...">
-        <span id="itemCount">Total: 0</span>
+      <div class="input-group">
+        <input type="text" id="login-username" placeholder=" " required />
+        <label for="login-username">Username</label>
       </div>
 
-      <table class="inventory-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Item Name</th>
-            <th>Quantity</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody">
-          <!-- Items will appear here -->
-        </tbody>
-      </table>
-    </main>
-  </div>
-
-  <!-- MODAL -->
-  <div class="modal" id="modal">
-    <div class="modal-content">
-      <h2>Add Item</h2>
-      <input type="text" id="itemName" placeholder="Item name" required>
-      <input type="number" id="itemQty" placeholder="Quantity" required>
-      <div class="modal-buttons">
-        <button class="cancel-btn" id="closeModal">Cancel</button>
-        <button class="save-btn" id="saveItem">Save</button>
+      <div class="input-group">
+        <input type="password" id="login-password" placeholder=" " required />
+        <label for="login-password">Password</label>
       </div>
+
+      <div class="show-password">
+        <input type="checkbox" id="login-show-password" /> Show Password
+      </div>
+
+      <button type="button" onclick="login()">Login</button>
+      <p>Don't have an account? <span onclick="toggleForms()">Register here</span></p>
+      <p id="login-msg" class="msg"></p>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div class="form-container" id="register-form" style="display:none;">
+      <h2>Register</h2>
+
+      <div class="input-group">
+        <input type="text" id="register-fullname" placeholder=" " required />
+        <label for="register-fullname">Company Name</label>
+      </div>
+
+      <div class="input-group">
+        <input type="email" id="register-email" placeholder=" " required />
+        <label for="register-email">Email</label>
+      </div>
+
+      <div class="input-group">
+        <input type="text" id="register-username" placeholder=" " required />
+        <label for="register-username">Username</label>
+      </div>
+
+      <div class="input-group">
+        <input type="password" id="register-password" placeholder=" " required />
+        <label for="register-password">Password</label>
+      </div>
+
+      <div class="show-password">
+        <input type="checkbox" id="register-show-password" /> Show Password
+      </div>
+
+      <div class="input-group">
+        <input type="text" id="register-phone" placeholder=" " />
+        <label for="register-phone">Phone Number</label>
+      </div>
+
+      <div class="input-group">
+        <input type="text" id="register-address" placeholder=" " />
+        <label for="register-address">Address</label>
+      </div>
+
+      <button type="button" onclick="register()">Register</button>
+      <p>Already have an account? <span onclick="toggleForms()">Login here</span></p>
+      <p id="register-msg" class="msg"></p>
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    // === Toggle Forms ===
+    function toggleForms() {
+      const loginForm = document.getElementById("login-form");
+      const registerForm = document.getElementById("register-form");
 
+      if (loginForm.style.display === "none") {
+        loginForm.style.display = "block";
+        registerForm.style.display = "none";
+      } else {
+        loginForm.style.display = "none";
+        registerForm.style.display = "block";
+      }
+    }
+
+    // === Register Function ===
+    function register() {
+      const username = document.getElementById("register-username").value;
+      const password = document.getElementById("register-password").value;
+      const fullname = document.getElementById("register-fullname").value;
+
+      if (!username || !password || !fullname) {
+        document.getElementById("register-msg").textContent = "Please fill all required fields.";
+        return;
+      }
+
+      const user = { username, password, fullname };
+      localStorage.setItem("user", JSON.stringify(user));
+
+      document.getElementById("register-msg").textContent = "Registration successful! You can now log in.";
+      document.getElementById("register-msg").style.color = "lightgreen";
+
+      setTimeout(() => toggleForms(), 1500);
+    }
+
+   // === Login Function === 
+function login() {
+  const username = document.getElementById("login-username").value;
+  const password = document.getElementById("login-password").value;
+  const user = JSON.parse(localStorage.getItem("user"));
+  const msg = document.getElementById("login-msg");
+
+  if (!user) {
+    msg.textContent = "No account found. Please register first.";
+    msg.style.color = "lightcoral";
+    return;
+  }
+
+  if (username === user.username && password === user.password) {
+    msg.textContent = "Login successful!";
+    msg.style.color = "lightgreen";
+
+    // ✅ Redirect to dashboard after 1 second
+    setTimeout(() => {
+      window.location.href = "dashboard.html"; // <-- change to your actual dashboard file
+    }, 1000);
+
+  } else {
+    msg.textContent = "Invalid username or password.";
+    msg.style.color = "lightcoral";
+  }
+}
+
+
+    // === Show Password Toggle ===
+    document.getElementById("login-show-password").addEventListener("change", function() {
+      const passwordField = document.getElementById("login-password");
+      passwordField.type = this.checked ? "text" : "password";
+    });
+
+    document.getElementById("register-show-password").addEventListener("change", function() {
+      const passwordField = document.getElementById("register-password");
+      passwordField.type = this.checked ? "text" : "password";
+    });
+  </script>
 </body>
 </html>
