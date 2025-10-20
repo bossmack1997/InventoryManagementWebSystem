@@ -149,6 +149,7 @@
   <div class="container">
     <!-- LOGIN FORM -->
     <div class="form-container" id="login-form">
+
       <h2>Login</h2>
 
       <div class="input-group">
@@ -266,16 +267,19 @@ function login() {
     msg.textContent = "Login successful!";
     msg.style.color = "lightgreen";
 
-    // ✅ Redirect to dashboard after 1 second
-    setTimeout(() => {
-      window.location.href = "dashboard.html"; // <-- change to your actual dashboard file
-    }, 1000);
+    // ✅ Save logged-in user to localStorage
+    localStorage.setItem("loggedInUser", user.username);
 
+    // Redirect to dashboard
+    setTimeout(() => {
+      window.location.href = "dashboard.html";
+    }, 1000);
   } else {
     msg.textContent = "Invalid username or password.";
     msg.style.color = "lightcoral";
   }
 }
+
 
 
     // === Show Password Toggle ===
