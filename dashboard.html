@@ -77,21 +77,22 @@ body {
 /* === HEADER === */
 header {
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background: #fff;
-  padding: 40px 20px;
+  padding: 15px 20px;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  margin-bottom: 10px;
-  text-align: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap; /* para hindi mag-overlap sa small screens */
 }
 
 header h1 {
   font-size: 1.2rem;
   color: #333;
   margin: 0;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  text-align: center;
 }
 
 .menu-toggle {
@@ -102,8 +103,6 @@ header h1 {
   color: #333;
   position: absolute;
   left: 20px;
-  top: 50%;
-  transform: translateY(-50%);
 }
 
 #addBtn {
@@ -117,8 +116,6 @@ header h1 {
   transition: background 0.3s;
   position: absolute;
   right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
 }
 
 #addBtn:hover {
@@ -177,19 +174,25 @@ header h1 {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0,0,0,0.5);
   display: none;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  z-index: 999;
+  padding: 15px;
 }
 
 .modal-content {
   background: #fff;
-  width: 400px;
-  border-radius: 10px;
-  overflow: hidden;
-  animation: fadeIn 0.3s ease;
+  padding: 20px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  max-height: 90vh; /* para hindi lumagpas */
+  overflow-y: auto;
 }
+
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-10px); }
@@ -312,6 +315,47 @@ header h1 {
     width: 100%;
   }
 }
+@media (max-width: 600px) {
+  header {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  header h1 {
+    font-size: 1rem;
+    margin: 10px 0;
+  }
+
+  .menu-toggle {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+  }
+
+  #addBtn {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+
+  .modal-content {
+    width: 95%;
+    max-height: 85vh;
+  }
+}
+
+
+@media (max-width: 600px) {
+  #addBtn {
+    position: static; /* tanggalin absolute para sumama sa center */
+    margin-top: 5px;
+    padding: 6px 12px;
+    font-size: 0.9rem;
+  }
+}
+
 </style>
 </head>
 <body>
