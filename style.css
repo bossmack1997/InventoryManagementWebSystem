@@ -85,6 +85,43 @@ input[type="number"].peso-input::before {
   overflow-x: hidden;
 }
 
+/* === WELCOME BOX INSIDE SIDEBAR === */
+.welcome-box {
+  background: linear-gradient(135deg, #2563eb, #1e3a8a);
+  padding: 1rem;
+  border-radius: 12px;
+  text-align: center;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 1s ease forwards;
+}
+
+.welcome-box p {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  margin-bottom: 0.2rem;
+}
+
+.welcome-box h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #ffffff, #a5b4fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: textGlow 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes textGlow {
+  from {
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.3), 0 0 10px rgba(59, 130, 246, 0.4);
+  }
+  to {
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.8), 0 0 30px rgba(59, 130, 246, 0.6);
+  }
+}
+
+
+
 /* === HEADER === */
 header {
   background: #2563eb;
@@ -327,6 +364,7 @@ tr:hover {
     margin-left: 0;
   }
 }
+
 
 /* === EXTRA MOBILE FIXES === */
 @media (max-width: 600px) {

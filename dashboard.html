@@ -1,573 +1,384 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Inventory Management Web System</title>
-<style>
-/* === GLOBAL RESET === */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
-}
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inventory Management Web System</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      /* === WELCOME BOX INSIDE SIDEBAR === */
+      .welcome-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        background: linear-gradient(145deg, #2563eb, #1e3a8a);
+        padding: 1rem;
+        border-radius: 15px;
+        margin-bottom: 1.2rem;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+        animation: fadeIn 1s ease forwards;
+        color: white;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
 
-/* === BODY LAYOUT === */
-body {
-  display: flex;
-  min-height: 100vh;
-  background: #f5f6fa;
-  overflow-x: hidden;
-}
+      .welcome-box::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.1),
+          transparent 70%
+        );
+        animation: rotateLight 6s linear infinite;
+      }
 
-/* === SIDEBAR === */
-.sidebar {
-  width: 250px;
-  background: #2f3640;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  position: fixed;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  padding: 20px;
-  transition: left 0.3s ease;
-  z-index: 1000;
-}
+      @keyframes rotateLight {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
 
-.sidebar h2 {
-  text-align: center;
-  margin-bottom: 20px;
-}
+      .welcome-icon {
+        font-size: 2rem;
+        margin-bottom: 0.3rem;
+        color: #dbeafe;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+      }
 
-.sidebar .nav a {
-  display: block;
-  color: #fff;
-  text-decoration: none;
-  padding: 10px;
-  border-radius: 6px;
-  margin-bottom: 8px;
-  transition: background 0.3s;
-}
+      .welcome-box p {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin-bottom: 0.2rem;
+        color: #c7d2fe;
+      }
 
-.sidebar .nav a.active,
-.sidebar .nav a:hover {
-  background: #40739e;
-}
+      .welcome-box h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        background: linear-gradient(90deg, #ffffff, #a5b4fc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: textGlow 2.5s ease-in-out infinite alternate;
+      }
 
-.sidebar footer {
-  text-align: center;
-  font-size: 0.75rem;
-  opacity: 0.7;
-}
+      @keyframes textGlow {
+        from {
+          text-shadow: 0 0 5px rgba(255, 255, 255, 0.3),
+            0 0 10px rgba(59, 130, 246, 0.4);
+        }
+        to {
+          text-shadow: 0 0 15px rgba(255, 255, 255, 0.8),
+            0 0 30px rgba(59, 130, 246, 0.6);
+        }
+      }
 
-/* === MAIN CONTENT === */
-.main-content {
-  margin-left: 260px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  transition: margin-left 0.3s ease;
-}
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
 
-/* === HEADER === */
-header {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #fff;
-  padding: 15px 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  margin-bottom: 20px;
-  flex-wrap: wrap; /* para hindi mag-overlap sa small screens */
-}
+      /* Download button hover fix */
+      #downloadReportBtn {
+        position: relative;
+        z-index: 10;
+        background: #2563eb;
+        color: white;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
 
-header h1 {
-  font-size: 1.2rem;
-  color: #333;
-  margin: 0;
-  text-align: center;
-}
+      #downloadReportBtn:hover {
+        background: #1d4ed8;
+      }
+    </style>
+  </head>
 
-.menu-toggle {
-  font-size: 1.8rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #333;
-  position: absolute;
-  left: 20px;
-}
+  <body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <h2>IMWS</h2>
 
-#addBtn {
-  background: #27ae60;
-  color: #fff;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s;
-  position: absolute;
-  right: 20px;
-}
-
-#addBtn:hover {
-  background: #2ecc71;
-}
-
-
-/* === SEARCH BAR === */
-.search-bar {
-  text-align: right;
-  margin-bottom: 15px;
-}
-
-.search-bar input {
-  padding: 10px;
-  width: 250px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
-/* === TABLE === */
-.inventory-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #fff;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.inventory-table th,
-.inventory-table td {
-  padding: 12px;
-  text-align: center;
-  border-bottom: 1px solid #eee;
-}
-
-.inventory-table th {
-  background: #40739e;
-  color: #fff;
-}
-
-.inventory-table tr:hover {
-  background: #f1f2f6;
-}
-
-#itemCount {
-  margin-top: 10px;
-  color: #555;
-}
-
-/* === MODAL === */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-  padding: 15px;
-}
-
-.modal-content {
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 400px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-  max-height: 90vh; /* para hindi lumagpas */
-  overflow-y: auto;
-}
-
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.modal-header {
-  background: #40739e;
-  color: #fff;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
-}
-
-.modal-body {
-  padding: 20px;
-}
-
-.modal-footer {
-  text-align: right;
-  padding: 10px 20px;
-  border-top: 1px solid #eee;
-}
-
-.close-btn {
-  cursor: pointer;
-  font-size: 1.5rem;
-}
-
-.input-group {
-  position: relative;
-  margin-bottom: 20px;
-}
-
-.input-group input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #bbb;
-  border-radius: 6px;
-  outline: none;
-}
-
-.input-group label {
-  position: absolute;
-  left: 12px;
-  top: 10px;
-  color: #777;
-  transition: 0.3s;
-  pointer-events: none;
-}
-
-.input-group input:focus + label,
-.input-group input:not(:placeholder-shown) + label {
-  top: -8px;
-  left: 8px;
-  font-size: 12px;
-  background: #fff;
-  padding: 0 4px;
-  color: #40739e;
-}
-
-.save-btn {
-  background: #27ae60;
-  color: #fff;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.cancel-btn {
-  background: #e74c3c;
-  color: #fff;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-/* === REPORT SECTION === */
-#report-section table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: center;
-  }
-  #report-section th, 
-  #report-section td {
-    padding: 10px;
-    border: 1px solid #ddd;
-  }
-  #report-section th {
-    background: #f5f5f5;
-  }
-
-/* === RESPONSIVE === */
-@media (max-width: 768px) {
-  .sidebar {
-    left: -260px;
-  }
-
-  .sidebar.active {
-    left: 0;
-  }
-
-  .menu-toggle {
-    display: block;
-  }
-
-  .main-content {
-    margin-left: 0;
-    padding: 15px;
-  }
-
-  header h1 {
-    font-size: 1rem;
-  }
-
-  .search-bar input {
-    width: 100%;
-  }
-}
-@media (max-width: 600px) {
-  header {
-    flex-direction: column;
-    padding: 10px;
-  }
-
-  header h1 {
-    font-size: 1rem;
-    margin: 10px 0;
-  }
-
-  .menu-toggle {
-    position: absolute;
-    left: 10px;
-    top: 10px;
-  }
-
-  #addBtn {
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    padding: 8px 12px;
-    font-size: 0.9rem;
-  }
-
-  .modal-content {
-    width: 95%;
-    max-height: 85vh;
-  }
-}
-
-
-@media (max-width: 600px) {
-  #addBtn {
-    position: static; /* tanggalin absolute para sumama sa center */
-    margin-top: 5px;
-    padding: 6px 12px;
-    font-size: 0.9rem;
-  }
-}
-
-</style>
-</head>
-<body>
-
-<!-- SIDEBAR -->
-<aside class="sidebar" id="sidebar">
-  <div>
-    <h2>IMWS</h2>
-    <div class="nav">
-      <a href="#" class="active">Dashboard</a>
-      <a href="#" onclick="logout()">Logout</a>
-    </div>
-  </div>
-  <footer>© 2025 INVENTORY MANAGEMENT WEB SYSTEM</footer>
-</aside>
-
-<!-- MAIN CONTENT -->
-<div class="main-content">
-  <header>
-    <button class="menu-toggle" id="menuToggle">☰</button>
-    <h1>Inventory Management Web System</h1>
-    <button id="addBtn">Add Item</button>
-  </header>
-
-  <main>
-    <div class="search-bar">
-      <input type="text" id="searchInput" placeholder="Search items...">
-    </div>
-
-    <table class="inventory-table">
-      <thead>
-        <tr>
-          <th>No.</th>
-          <th>Item Name</th>
-          <th>Quantity</th>
-          <th>Price</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
-
-    <p id="itemCount">Total Items: 0</p>
-
-    <section id="report-section">
-      <h2>📊 Generate Report</h2>
-      <div id="report-content"></div>
-    </section>
-  </main>
-</div>
-
-<!-- MODAL -->
-<div class="modal" id="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2>Add Item</h2>
-      <span id="closeModal" class="close-btn">&times;</span>
-    </div>
-    <div class="modal-body">
-      <div class="input-group">
-        <input type="text" id="itemName" placeholder=" " required>
-        <label for="itemName">Item Name</label>
+      <div class="welcome-box">
+        <div class="welcome-icon">👤</div>
+        <p>Welcome,</p>
+        <h3 id="usernameDisplay">Guest</h3>
       </div>
-      <div class="input-group">
-        <input type="number" id="itemQty" placeholder=" " min="1" required>
-        <label for="itemQty">Quantity</label>
+
+      <div class="nav">
+        <a href="#" class="active">Dashboard</a>
+        <a href="#" onclick="logout()">Logout</a>
       </div>
-      <div class="input-group">
-        <input type="number" id="itemPrice" placeholder=" " min="0" step="0.01" required>
-        <label for="itemPrice">Price</label>
+
+      <footer>© 2025 Inventory Management Web System</footer>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+      <header>
+        <button class="menu-toggle" id="menuToggle">☰</button>
+        <h1>Inventory Management Web System</h1>
+        <button id="addBtn">Add Item</button>
+      </header>
+
+      <main>
+        <div class="search-bar">
+          <input type="text" id="searchInput" placeholder="Search items..." />
+        </div>
+
+        <table class="inventory-table">
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>Item Name</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+
+        <p id="itemCount">Total Items: 0</p>
+
+        <section id="report-section">
+          <h2>📊 Generate Report</h2>
+          <div style="margin-bottom: 8px">
+            <button id="downloadReportBtn" class="save-btn">
+              ⬇️ Download Reports
+            </button>
+          </div>
+          <div id="report-content"></div>
+        </section>
+      </main>
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal" id="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Add Item</h2>
+          <span id="closeModal" class="close-btn">&times;</span>
+        </div>
+        <div class="modal-body">
+          <div class="input-group">
+            <input type="text" id="itemName" placeholder=" " required />
+            <label for="itemName">Item Name</label>
+          </div>
+          <div class="input-group">
+            <input
+              type="number"
+              id="itemQty"
+              placeholder=" "
+              min="1"
+              required
+            />
+            <label for="itemQty">Quantity</label>
+          </div>
+          <div class="input-group">
+            <input
+              type="number"
+              id="itemPrice"
+              placeholder=" "
+              min="0"
+              step="0.01"
+              required
+            />
+            <label for="itemPrice">Price</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="cancel-btn" id="closeModalBtn">Cancel</button>
+          <button class="save-btn" id="saveItem">Save</button>
+        </div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="cancel-btn" id="closeModalBtn">Cancel</button>
-      <button class="save-btn" id="saveItem">Save</button>
-    </div>
-  </div>
-</div>
 
-<script>
-// === SIDEBAR TOGGLE ===
-const sidebar = document.getElementById("sidebar");
-const menuToggle = document.getElementById("menuToggle");
-menuToggle.addEventListener("click", () => sidebar.classList.toggle("active"));
-document.addEventListener("click", e => {
-  if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
-    sidebar.classList.remove("active");
-  }
-});
+    <script>
+      // === SHOW LOGGED-IN USER ===
+      document.addEventListener("DOMContentLoaded", () => {
+        const usernameDisplay = document.getElementById("usernameDisplay");
+        const username = localStorage.getItem("loggedInUser");
+        const company = localStorage.getItem("loggedInCompany");
 
-// === ELEMENTS ===
-const addBtn = document.getElementById("addBtn");
-const modal = document.getElementById("modal");
-const closeModalBtn = document.getElementById("closeModal");
-const saveItemBtn = document.getElementById("saveItem");
-const itemName = document.getElementById("itemName");
-const itemQty = document.getElementById("itemQty");
-const itemPrice = document.getElementById("itemPrice");
-const tableBody = document.getElementById("tableBody");
-const searchInput = document.getElementById("searchInput");
-const itemCount = document.getElementById("itemCount");
+        if (username && company) {
+          usernameDisplay.textContent = `${username} (${company})`;
+        } else if (username) {
+          usernameDisplay.textContent = username;
+        } else {
+          usernameDisplay.textContent = "Guest";
+        }
+      });
 
-// === LOCAL STORAGE ===
-let items = JSON.parse(localStorage.getItem("inventoryItems")) || [];
+      // === SIDEBAR TOGGLE ===
+      const sidebar = document.getElementById("sidebar");
+      const menuToggle = document.getElementById("menuToggle");
+      menuToggle.addEventListener("click", () =>
+        sidebar.classList.toggle("active")
+      );
+      document.addEventListener("click", (e) => {
+        if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+          sidebar.classList.remove("active");
+        }
+      });
 
-// === RENDER ITEMS ===
-function renderItems() {
-  tableBody.innerHTML = "";
-  const filtered = items.filter(i => i.name.toLowerCase().includes(searchInput.value.toLowerCase()));
-  filtered.forEach((item, index) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${index + 1}</td>
-      <td>${item.name}</td>
-      <td>${item.quantity}</td>
-      <td>₱${parseFloat(item.price).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
-      <td><button onclick="editItem(${index})">✏️</button> <button onclick="deleteItem(${index})">🗑️</button></td>
-    `;
-    tableBody.appendChild(row);
-  });
-  itemCount.textContent = `Total: ${filtered.length}`;
-  generateReport();
-}
+      // === INVENTORY LOGIC ===
+      const addBtn = document.getElementById("addBtn");
+      const modal = document.getElementById("modal");
+      const closeModalBtn = document.getElementById("closeModal");
+      const saveItemBtn = document.getElementById("saveItem");
+      const itemName = document.getElementById("itemName");
+      const itemQty = document.getElementById("itemQty");
+      const itemPrice = document.getElementById("itemPrice");
+      const tableBody = document.getElementById("tableBody");
+      const searchInput = document.getElementById("searchInput");
+      const itemCount = document.getElementById("itemCount");
+      const downloadBtn = document.getElementById("downloadReportBtn");
 
-// === SAVE TO STORAGE ===
-function saveToLocalStorage() {
-  localStorage.setItem("inventoryItems", JSON.stringify(items));
-}
+      let items = JSON.parse(localStorage.getItem("inventoryItems")) || [];
 
-// === MODAL CONTROL ===
-addBtn.onclick = () => { modal.style.display = "flex"; };
-closeModalBtn.onclick = () => modal.style.display = "none";
-document.getElementById("closeModalBtn").onclick = () => modal.style.display = "none";
+      function renderItems() {
+        tableBody.innerHTML = "";
+        const filtered = items.filter((i) =>
+          i.name.toLowerCase().includes(searchInput.value.toLowerCase())
+        );
+        filtered.forEach((item, index) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${item.name}</td>
+            <td>${item.quantity}</td>
+            <td>₱${parseFloat(item.price).toLocaleString("en-PH", {
+              minimumFractionDigits: 2,
+            })}</td>
+            <td><button onclick="editItem(${index})">✏️</button> 
+            <button onclick="deleteItem(${index})">🗑️</button></td>
+          `;
+          tableBody.appendChild(row);
+        });
+        itemCount.textContent = `Total: ${filtered.length}`;
+        generateReport();
+      }
 
-// === SAVE ITEM ===
-saveItemBtn.onclick = () => {
-  const name = itemName.value.trim();
-  const qty = parseInt(itemQty.value.trim());
-  const price = parseFloat(itemPrice.value.trim());
+      function saveToLocalStorage() {
+        localStorage.setItem("inventoryItems", JSON.stringify(items));
+      }
 
-  if (!name || qty <= 0 || isNaN(price)) return alert("Please fill in valid details!");
+      addBtn.onclick = () => (modal.style.display = "flex");
+      closeModalBtn.onclick = () => (modal.style.display = "none");
+      document.getElementById("closeModalBtn").onclick = () =>
+        (modal.style.display = "none");
 
-  items.push({ name, quantity: qty, price: price.toFixed(2) });
-  saveToLocalStorage();
-  renderItems();
-  modal.style.display = "none";
-  alert("Item added successfully!");
-};
+      saveItemBtn.onclick = () => {
+        const name = itemName.value.trim();
+        const qty = parseInt(itemQty.value.trim());
+        const price = parseFloat(itemPrice.value.trim());
+        if (!name || qty <= 0 || isNaN(price))
+          return alert("Please fill in valid details!");
+        items.push({ name, quantity: qty, price: price.toFixed(2) });
+        saveToLocalStorage();
+        renderItems();
+        modal.style.display = "none";
+        alert("Item added successfully!");
+      };
 
-// === EDIT ITEM ===
-function editItem(index) {
-  const newName = prompt("Enter new name:", items[index].name);
-  const newQty = prompt("Enter new quantity:", items[index].quantity);
-  const newPrice = prompt("Enter new price:", items[index].price);
+      function editItem(index) {
+        const newName = prompt("Enter new name:", items[index].name);
+        const newQty = prompt("Enter new quantity:", items[index].quantity);
+        const newPrice = prompt("Enter new price:", items[index].price);
+        if (newName && newQty > 0 && newPrice >= 0) {
+          items[index] = {
+            name: newName,
+            quantity: parseInt(newQty),
+            price: parseFloat(newPrice).toFixed(2),
+          };
+          saveToLocalStorage();
+          renderItems();
+        }
+      }
 
-  if (newName && newQty > 0 && newPrice >= 0) {
-    items[index] = { name: newName, quantity: parseInt(newQty), price: parseFloat(newPrice).toFixed(2) };
-    saveToLocalStorage();
-    renderItems();
-  }
-}
+      function deleteItem(index) {
+        if (confirm("Are you sure you want to delete this item?")) {
+          items.splice(index, 1);
+          saveToLocalStorage();
+          renderItems();
+        }
+      }
 
-// === DELETE ITEM ===
-function deleteItem(index) {
-  if (confirm("Are you sure you want to delete this item?")) {
-    items.splice(index, 1);
-    saveToLocalStorage();
-    renderItems();
-  }
-}
+      searchInput.addEventListener("input", renderItems);
 
-// === SEARCH FEATURE ===
-searchInput.addEventListener("input", renderItems);
+      function generateReport() {
+        const report = document.getElementById("report-content");
+        if (items.length === 0) {
+          report.innerHTML = "<p>No items available.</p>";
+          return;
+        }
+        const totalQty = items.reduce((sum, i) => sum + Number(i.quantity), 0);
+        const totalValue = items.reduce(
+          (sum, i) => sum + parseFloat(i.price) * Number(i.quantity),
+          0
+        );
+        const lowStock = items.filter((i) => Number(i.quantity) < 10);
 
-// === GENERATE REPORT ===
-function generateReport() {
-  const report = document.getElementById("report-content");
-  if (items.length === 0) {
-    report.innerHTML = "<p>No items available.</p>";
-    return;
-  }
+        let html = `
+          <p><strong>Total Quantity:</strong> ${totalQty}</p>
+          <p><strong>Total Value:</strong> ₱${totalValue.toLocaleString(
+            "en-PH",
+            { minimumFractionDigits: 2 }
+          )}</p>
+          <p><strong>Low Stock Items:</strong> ${lowStock.length}</p>
+        `;
+        report.innerHTML = html;
+      }
 
-  const totalQty = items.reduce((sum, i) => sum + i.quantity, 0);
-  const totalValue = items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
-  const lowStock = items.filter(i => i.quantity < 10);
+      // === DOWNLOAD REPORTS FIXED ===
+      downloadBtn.addEventListener("click", () => {
+        if (items.length === 0) {
+          alert("No data available to download!");
+          return;
+        }
 
-  let html = `
-    <p><strong>Total Quantity:</strong> ${totalQty}</p>
-    <p><strong>Total Value:</strong> ₱${totalValue.toLocaleString("en-PH")}</p>
-    <p><strong>Low Stock Items:</strong> ${lowStock.length}</p>
-    <table style="width:100%; border-collapse:collapse; margin-top:10px;">
-      <thead><tr style="background:#f5f5f5;"><th>Item</th><th>Qty</th><th>Price</th><th>Status</th></tr></thead>
-      <tbody>
-  `;
-  items.forEach(i => {
-    const status = i.quantity < 10 ? "⚠️ Low Stock" : "✅ In Stock";
-    html += `<tr><td>${i.name}</td><td>${i.quantity}</td><td>₱${i.price}</td><td>${status}</td></tr>`;
-  });
-  html += "</tbody></table>";
-  report.innerHTML = html;
-}
+        let csvContent = "Item Name,Quantity,Price\n";
+        items.forEach((item) => {
+          csvContent += `${item.name},${item.quantity},${item.price}\n`;
+        });
 
-// === INIT ===
-renderItems();
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "inventory_report.csv";
+        link.click();
+      });
 
-// === LOGOUT ===
-function logout() {
-  if (confirm("Are you sure you want to log out?")) {
-    alert("You have been logged out!");
-    window.location.href = "index.html";
-  }
-}
-</script>
-</body>
+      function logout() {
+        if (confirm("Are you sure you want to log out?")) {
+          localStorage.removeItem("loggedInUser");
+          localStorage.removeItem("loggedInCompany");
+          alert("You have been logged out!");
+          window.location.href = "index.html";
+        }
+      }
+
+      renderItems();
+    </script>
+  </body>
 </html>
