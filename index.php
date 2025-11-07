@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IMWS - Login/Register</title>
+  <style>
+    /* === GLOBAL STYLE === */
+    * { margin:0; padding:0; box-sizing:border-box; font-family: "Poppins", sans-serif;}
+    body {
+      min-height: 100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background: linear-gradient(135deg, #0b3bb0, #071233);
+    }
+
+    .container {
+      width: 850px;
+      max-width: 100%;
+      height: 550px;
+      background: #fff;
+      border-radius: 15px;
+      display: flex;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      position: relative;
+      transition: transform 0.8s ease-in-out;
+    }
+
+    .form-section, .image-section {
+      width: 50%;
+      height: 100%;
+      transition: all 0.8s ease-in-out;
+    }
+
+    .form-section {
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:40px;
+      position: relative;
+      z-index:2;
+      background: #fff;
+    }
+
+    .form-section h2 { font-size:2rem; color:#071233; margin-bottom:20px; text-align:center; }
+    form { width:100%; max-width:300px; }
+    .input-group { margin-bottom:16px; position:relative; }
+    label { display:block; font-size:14px; margin-bottom:6px; color:#333; font-weight:500; }
+    input {
+      width:100%;
+      padding:10px 35px 10px 10px;
+      border:1px solid #ccc;
+      border-radius:8px;
+      font-size:14px;
+      outline:none;
+      transition:0.3s;
+    }
+    input:focus { border-color:#2563eb; }
+
+    .show-pass {
+      position:absolute;
+      right:10px;
+      top:36px;
+      cursor:pointer;
+      color:#777;
+      font-size:14px;
+      user-select:none;
+    }
+
+    .btn {
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:8px;
+      background:#2563eb;
+      color:#fff;
+      font-weight:600;
+      font-size:15px;
+      cursor:pointer;
+      transition:0.3s;
+    }
+
+    .btn:hover { background:#1d4ed8; }
+
+    .switch-form { text-align:center; font-size:14px; margin-top:15px; color:#333; }
+    .switch-form a { color:#2563eb; font-weight:600; text-decoration:none; cursor:pointer; }
+
+    .image-section {
+      background: linear-gradient(135deg, #3b82f6, #60a5fa);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      flex-direction:column;
+      color:#fff;
+      text-align:center;
+      position: relative;
+      z-index:1;
+      transition: all 0.8s ease-in-out;
+    }
+
+    .image-section img {
+      width:180px;
+      margin-bottom:15px;
+      background:#fff;
+      padding:15px;
+      border-radius:50%;
+      box-shadow:0 3px 10px rgba(0,0,0,0.3);
+      transition: transform 0.8s ease, opacity 0.8s ease;
+    }
+
+    .container.register-active .form-section { transform: translateX(100%); }
+    .container.register-active .image-section { transform: translateX(-100%); background: linear-gradient(135deg, #2563eb, #1d4ed8);}
+    .container.register-active .image-section img { transform: rotateY(360deg); }
+
+    .alert {
+      position:absolute;
+      top:20px;
+      left:50%;
+      transform:translateX(-50%);
+      padding:12px 25px;
+      border-radius:6px;
+      background:#2563eb;
+      color:#fff;
+      font-weight:500;
+      opacity:0;
+      transition:opacity 0.4s ease;
+      z-index:100;
+    }
+    .alert.show { opacity:1; }
+
+    @media(max-width:768px){
+      .container { flex-direction:column; width:90%; height:auto; }
+      .form-section, .image-section { width:100%; height:auto; transform:none !important; }
+      .image-section { padding:25px 0; }
+      .image-section img { width:140px; }
+      .form-section h2 { font-size:1.6rem; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="alert" id="alertBox"></div>
+
+  <div class="container" id="container">
+    <div class="form-section" id="formSection">
+      <form id="loginForm">
+        <h2>Login</h2>
+        <div class="input-group">
+          <label>Company Name</label>
+          <input id="loginCompany" type="text" placeholder="Enter your company" required />
+        </div>
+        <div class="input-group">
+          <label>Username</label>
+          <input id="loginUser" type="text" placeholder="Enter username" required />
+        </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter your password" required />
+          <span class="show-pass" onclick="togglePassword('loginPassword', this)">👁</span>
+        </div>
+        <button type="submit" class="btn">LOGIN</button>
+        <div class="switch-form">
+          Don’t have an account? <a onclick="toggleForm()">REGISTER</a>
+        </div>
+      </form>
+    </div>
+
+    <div class="image-section" id="imageSection">
+      <img src="img/logo.png" alt="IMWS Logo" />
+      <h3>Inventory Management Web System</h3>
+    </div>
+  </div>
+
+  <script>
+    const container = document.getElementById("container");
+    const alertBox = document.getElementById("alertBox");
+
+    function showAlert(message, duration=2000){
+      alertBox.textContent = message;
+      alertBox.classList.add("show");
+      setTimeout(()=> alertBox.classList.remove("show"), duration);
+    }
+
+    function togglePassword(id, el){
+      const input = document.getElementById(id);
+      if(!input) return;
+      input.type = input.type === "password" ? "text" : "password";
+      el.textContent = input.type === "password" ? "👁" : "🙈";
+    }
+
+    function toggleForm(){
+      container.classList.toggle("register-active");
+      const formSection = document.getElementById("formSection");
+
+      if(container.classList.contains("register-active")){
+        formSection.innerHTML = `
+          <form id="registerForm">
+            <h2>Create Account</h2>
+            <div class="input-group">
+              <label>Company Name</label>
+              <input id="regCompany" type="text" placeholder="Enter your company" required />
+            </div>
+            <div class="input-group">
+              <label>Username</label>
+              <input id="regUser" type="text" placeholder="Enter username" required />
+            </div>
+            <div class="input-group">
+              <label>Email</label>
+              <input id="regEmail" type="email" placeholder="Enter your email" required />
+            </div>
+            <div class="input-group">
+              <label>Password</label>
+              <input type="password" id="registerPassword" placeholder="Create a password" required />
+              <span class="show-pass" onclick="togglePassword('registerPassword', this)">👁</span>
+            </div>
+            <div class="input-group">
+              <label>Re-enter Password</label>
+              <input type="password" id="confirmPassword" placeholder="Re-enter your password" required />
+              <span class="show-pass" onclick="togglePassword('confirmPassword', this)">👁</span>
+            </div>
+            <button type="submit" class="btn">REGISTER</button>
+            <div class="switch-form">
+              Already have an account? <a onclick="toggleForm()">LOGIN</a>
+            </div>
+          </form>
+        `;
+      } else {
+        formSection.innerHTML = `
+          <form id="loginForm">
+            <h2>Login</h2>
+            <div class="input-group">
+              <label>Company Name</label>
+              <input id="loginCompany" type="text" placeholder="Enter your company" required />
+            </div>
+            <div class="input-group">
+              <label>Username</label>
+              <input id="loginUser" type="text" placeholder="Enter username" required />
+            </div>
+            <div class="input-group">
+              <label>Password</label>
+              <input type="password" id="loginPassword" placeholder="Enter your password" required />
+              <span class="show-pass" onclick="togglePassword('loginPassword', this)">👁</span>
+            </div>
+            <button type="submit" class="btn">LOGIN</button>
+            <div class="switch-form">
+              Don’t have an account? <a onclick="toggleForm()">REGISTER</a>
+            </div>
+          </form>
+        `;
+      }
+      attachHandlers();
+    }
+
+    function attachHandlers(){
+      // LOGIN
+      const loginForm = document.getElementById("loginForm");
+      if(loginForm){
+        loginForm.addEventListener("submit", async e=>{
+          e.preventDefault();
+          const company = document.getElementById("loginCompany").value.trim();
+          const username = document.getElementById("loginUser").value.trim();
+          const password = document.getElementById("loginPassword").value.trim();
+
+          const formData = new FormData();
+          formData.append("company", company);
+          formData.append("username", username);
+          formData.append("password", password);
+
+          try{
+            const res = await fetch("backend/login.php", { method:"POST", body: formData });
+            const text = (await res.text()).trim();
+
+            if(text === "success"){
+              showAlert("Login successful! Redirecting...");
+              setTimeout(()=> window.location.href="dashboard.php", 1500);
+            } else {
+              showAlert(text);
+            }
+          } catch(err){
+            console.error(err);
+            showAlert("Connection failed. Check backend path.");
+          }
+        });
+      }
+
+      // REGISTER
+      const registerForm = document.getElementById("registerForm");
+      if(registerForm){
+        registerForm.addEventListener("submit", async e=>{
+          e.preventDefault();
+          const company = document.getElementById("regCompany").value.trim();
+          const username = document.getElementById("regUser").value.trim();
+          const email = document.getElementById("regEmail").value.trim();
+          const password = document.getElementById("registerPassword").value.trim();
+          const confirm = document.getElementById("confirmPassword").value.trim();
+
+          if(password !== confirm){ showAlert("Passwords do not match!"); return; }
+
+          const formData = new FormData();
+          formData.append("company", company);
+          formData.append("username", username);
+          formData.append("email", email);
+          formData.append("password", password);
+
+          try{
+            const res = await fetch("backend/register.php", { method:"POST", body: formData });
+            const text = (await res.text()).trim();
+
+            if(text === "success"){
+              showAlert("Registration successful! Redirecting to login...");
+              setTimeout(()=> toggleForm(), 1500);
+            } else { showAlert(text); }
+          } catch(err){
+            console.error(err);
+            showAlert("Connection error.");
+          }
+        });
+      }
+    }
+
+    attachHandlers();
+  </script>
+</body>
+</html>
