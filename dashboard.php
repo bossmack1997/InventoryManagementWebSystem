@@ -6,8 +6,8 @@ if (!isset($_SESSION['username'])) {
 }
 $username = $_SESSION['username'];
 $company  = $_SESSION['company_name'];
+$userId   = $_SESSION['user_id']; // user_id from session
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -16,7 +16,6 @@ $company  = $_SESSION['company_name'];
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IMWS Dashboard</title>
 <link rel="stylesheet" href="style.css">
-
 </head>
 <body>
 
@@ -99,15 +98,19 @@ $company  = $_SESSION['company_name'];
   </div>
 </div>
 </div>
-
 <script>
+// Store user_id in JS
+const currentUserId = <?php echo json_encode($userId); ?>;
+
 // SIDEBAR TOGGLE
 const sidebar = document.getElementById("sidebar");
 const menuToggle = document.getElementById("menuToggle");
 menuToggle.addEventListener("click", () => sidebar.classList.toggle("active"));
-document.addEventListener("click", e => { if(!sidebar.contains(e.target) && !menuToggle.contains(e.target)) sidebar.classList.remove("active"); });
+document.addEventListener("click", e => { 
+    if(!sidebar.contains(e.target) && !menuToggle.contains(e.target)) sidebar.classList.remove("active"); 
+});
 
-// MODAL
+// ELEMENTS
 const addBtn = document.getElementById("addBtn");
 const modal = document.getElementById("modal");
 const closeModalBtn = document.getElementById("closeModal");
@@ -124,39 +127,12 @@ let items = [];
 
 // FETCH ITEMS
 async function loadItems() {
-  try {
-    const res = await fetch("backend/item.php");
-    items = await res.json();
-    renderItems();
-  } catch(err){ console.error(err); }
-}
-
-// RENDER TABLE
-function renderItems() {
-  tableBody.innerHTML = "";
-  const filtered = items.filter(i => i.item_name.toLowerCase().includes(searchInput.value.toLowerCase()));
-  filtered.forEach((item,index)=>{
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${index+1}</td>
-      <td>${item.item_name}</td>
-      <td>${item.quantity}</td>
-      <td>₱${parseFloat(item.price).toLocaleString("en-PH",{minimumFractionDigits:2})}</td>
-      <td>
-        <button onclick="editItem(${item.id})">✏️</button>
-        <button onclick="deleteItem(${item.id})">🗑️</button>
-      </td>
-    `;
-    tableBody.appendChild(row);
-  });
-  itemCount.textContent = `Total: ${filtered.length}`;
-  generateReport();
-}
-
-async function loadItems() {
     try {
         const res = await fetch("backend/item.php");
-        items = await res.json();
+        const data = await res.json();
+
+        // Ensure data is always an array
+        items = Array.isArray(data) ? data : [];
         renderItems();
     } catch(err){
         console.error(err);
@@ -164,14 +140,63 @@ async function loadItems() {
     }
 }
 
+// RENDER TABLE
+function renderItems() {
+    const filtered = items.filter(i => i.item_name.toLowerCase().includes(searchInput.value.toLowerCase()));
+    tableBody.innerHTML = "";
+
+    filtered.forEach((item, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${index+1}</td>
+            <td>${item.item_name}</td>
+            <td>${item.quantity}</td>
+            <td>₱${parseFloat(item.price).toLocaleString("en-PH",{minimumFractionDigits:2})}</td>
+            <td>
+                <button onclick="editItem(${item.id})">✏️</button>
+                <button onclick="deleteItem(${item.id})">🗑️</button>
+            </td>
+        `;
+        tableBody.appendChild(row);
+    });
+
+    itemCount.textContent = `Total Items: ${filtered.length}`;
+    updateReport(filtered);
+}
+
+// DYNAMIC REPORT
+function updateReport(filteredItems=null) {
+    const report = document.getElementById("report-content");
+    const reportItems = filteredItems || items;
+
+    if(reportItems.length === 0) {
+        report.innerHTML = "<p>No items available.</p>";
+        return;
+    }
+
+    const totalQty = reportItems.reduce((sum,i)=>sum+Number(i.quantity),0);
+    const totalValue = reportItems.reduce((sum,i)=>sum+parseFloat(i.price)*Number(i.quantity),0);
+    const lowStock = reportItems.filter(i=>Number(i.quantity)<10);
+
+    report.innerHTML = `
+        <p><strong>Total Quantity:</strong> ${totalQty}</p>
+        <p><strong>Total Value:</strong> ₱${totalValue.toLocaleString("en-PH",{minimumFractionDigits:2})}</p>
+        <p><strong>Low Stock Items:</strong> ${lowStock.length}</p>
+    `;
+}
+
+// ADD ITEM
 saveItemBtn.onclick = async () => {
     const name = itemName.value.trim();
     const qty = parseInt(itemQty.value.trim());
     const price = parseFloat(itemPrice.value.trim());
 
-    if(!name || qty<=0 || isNaN(price)){ alert("Please fill in valid details!"); return; }
+    if(!name || qty<=0 || isNaN(price)){ 
+        alert("Please fill in valid details!"); 
+        return; 
+    }
 
-    try{
+    try {
         const res = await fetch("backend/item.php", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -181,6 +206,7 @@ saveItemBtn.onclick = async () => {
         alert(result.message);
         if(result.success){
             modal.style.display = "none";
+            itemName.value = itemQty.value = itemPrice.value = "";
             loadItems();
         }
     } catch(err){
@@ -189,66 +215,58 @@ saveItemBtn.onclick = async () => {
     }
 };
 
-
 // EDIT ITEM
 async function editItem(id){
-  const item = items.find(i=>i.id==id);
-  const newName = prompt("Enter new name:", item.item_name);
-  const newQty = prompt("Enter new quantity:", item.quantity);
-  const newPrice = prompt("Enter new price:", item.price);
-  if(!newName || newQty<=0 || newPrice<0) return;
-  try{
-    const res = await fetch("backend/item.php",{
-      method:"PUT",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({ id:id, item_name:newName, description:item.description, quantity:newQty, price:newPrice })
-    });
-    const result = await res.json();
-    alert(result.message);
-    loadItems();
-  }catch(err){ console.error(err); alert("Failed to update item."); }
+    const item = items.find(i => i.id==id);
+    if(!item) return alert("Item not found.");
+
+    const newName = prompt("Enter new name:", item.item_name);
+    const newQty = prompt("Enter new quantity:", item.quantity);
+    const newPrice = prompt("Enter new price:", item.price);
+    if(!newName || newQty<=0 || newPrice<0) return;
+
+    try{
+        const res = await fetch("backend/item.php", {
+            method:"PUT",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({ id:id, item_name:newName, description:item.description, quantity:newQty, price:newPrice })
+        });
+        const result = await res.json();
+        alert(result.message);
+        loadItems();
+    }catch(err){ console.error(err); alert("Failed to update item."); }
 }
 
 // DELETE ITEM
 async function deleteItem(id){
-  if(!confirm("Are you sure you want to delete this item?")) return;
-  try{
-    const res = await fetch("backend/item.php",{
-      method:"DELETE",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({ id:id })
-    });
-    const result = await res.json();
-    alert(result.message);
-    loadItems();
-  }catch(err){ console.error(err); alert("Failed to delete item."); }
+    if(!confirm("Are you sure you want to delete this item?")) return;
+    try{
+        const res = await fetch("backend/item.php", {
+            method:"DELETE",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({ id:id })
+        });
+        const result = await res.json();
+        alert(result.message);
+        loadItems();
+    }catch(err){ console.error(err); alert("Failed to delete item."); }
 }
 
 // SEARCH
 searchInput.addEventListener("input", renderItems);
 
-// REPORT
-function generateReport(){
-  const report = document.getElementById("report-content");
-  if(items.length===0){ report.innerHTML="<p>No items available.</p>"; return; }
-  const totalQty = items.reduce((sum,i)=>sum+Number(i.quantity),0);
-  const totalValue = items.reduce((sum,i)=>sum+parseFloat(i.price)*Number(i.quantity),0);
-  const lowStock = items.filter(i=>Number(i.quantity)<10);
-  report.innerHTML=`<p><strong>Total Quantity:</strong> ${totalQty}</p>
-    <p><strong>Total Value:</strong> ₱${totalValue.toLocaleString("en-PH",{minimumFractionDigits:2})}</p>
-    <p><strong>Low Stock Items:</strong> ${lowStock.length}</p>`;
-}
-
 // DOWNLOAD REPORT
 downloadBtn.addEventListener("click", ()=>{
-  if(items.length===0){ alert("No data available!"); return; }
-  let csv = "Item Name,Quantity,Price\n";
-  items.forEach(i=>{ csv+=`${i.item_name},${i.quantity},${i.price}\n`; });
-  const blob = new Blob([csv],{type:"text/csv;charset=utf-8"});
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download="inventory_report.csv";
-  link.click();
+    if(items.length===0){ alert("No data available!"); return; }
+
+    let csv = "Item Name,Quantity,Price\n";
+    items.forEach(i=>{ csv+=`${i.item_name},${i.quantity},${i.price}\n`; });
+
+    const blob = new Blob([csv],{type:"text/csv;charset=utf-8"});
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download="inventory_report.csv";
+    link.click();
 });
 
 // MODAL CONTROLS
@@ -259,14 +277,13 @@ document.getElementById("closeModalBtn").onclick = () => modal.style.display="no
 // LOGOUT
 function logout() {
     if (confirm("Are you sure you want to logout?")) {
-        // redirect to PHP logout handler
         window.location.href = "index.php";
     }
 }
 
-
 // INITIAL LOAD
 loadItems();
+
 </script>
 </body>
 </html>
